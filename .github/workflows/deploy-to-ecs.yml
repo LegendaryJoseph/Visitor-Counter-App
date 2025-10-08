@@ -52,8 +52,7 @@ jobs:
     - name: Update ECS service with new image
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
-          service: ${{ env.ECS_SERVICE }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          image: ${{ steps.build-image.outputs.image }}
-          container-name: ${{ env.CONTAINER_NAME }}
-          wait-for-service-stability: true
+        task-definition: visitor-counter-app-task   # use the ECS task definition family name
+        service: visitor-counter-app-svc
+        cluster: visitor-counter-app-cluster
+        wait-for-service-stability: true
