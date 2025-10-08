@@ -49,10 +49,20 @@ jobs:
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-    - name: Update ECS service with new image
+    - name: Get latest ECS task definition ARN
+      id: get-task-def
+      run: |
+        TASK_DEF_ARN=$(aws ecs describe-task-definition \
+          --task-definition visitor-counter-app-task \
+          --query "taskDefinition.taskDefinitionArn" \
+          --output text)
+        echo "task_def_arn=$TASK_DEF_ARN" >> $GITHUB_OUTPUT
+
+    - name: Deploy ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
-        task-definition: visitor-counter-app-task   # use the ECS task definition family name
+        task-definition: ${{ steps.get-task-def.outputs.task_def_arn }}
         service: visitor-counter-app-svc
         cluster: visitor-counter-app-cluster
         wait-for-service-stability: true
+
